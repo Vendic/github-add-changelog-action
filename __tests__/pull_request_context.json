@@ -1,3 +1,8 @@
 {
-  "repositoryUrl": "https://github.com/Vendic/github-actions-tests"
+  "repositoryUrl": "https://github.com/Vendic/github-actions-tests",
+  "event": {
+    "pull_request": {
+      "body": "## Description\n<!-- Please include a summary of the changes and the related issue. Please also include relevant context. -->\n\n## How Has This Been Tested?\n<!-- Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration -->\n\n## Checklist:\n- [ ] My code is up to date with the development branch, i've pulled in the latest changes\n- [ ] I've added the build label to my PR\n\n## Changelog\n### Changed\n- [TEST-123](https://www.vendic.nl/) Some change\n- [TEST-123](https://www.vendic.nl/) Some change 2\n\n### Removed\n- [TEST-123](https://www.vendic.nl/) Removal of something"
+    }
+  }
 }

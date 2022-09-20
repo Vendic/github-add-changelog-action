@@ -9,6 +9,7 @@ import {expect, test} from '@jest/globals'
 test('Test main run', async () => {
     // Mocks
     const failedMock = jest.spyOn(core, 'setFailed');
+    const infoMock = jest.spyOn(core, 'info');
     const payloadPath = path.join(__dirname, 'pull_request_context.json');
     const payload = JSON.parse(fs.readFileSync(payloadPath, 'utf8'))
     github.context.payload = payload as WebhookPayload
@@ -17,6 +18,7 @@ test('Test main run', async () => {
 
     // Assertions
     expect(failedMock).toHaveBeenCalledTimes(0);
+    expect(infoMock).toHaveBeenCalledWith('CHANGELOG.md was updated.')
 })
 
 beforeEach(() => {
@@ -25,4 +27,6 @@ beforeEach(() => {
 
 afterEach(() => {
     delete process.env['INPUT_TOKEN']
+    delete process.env['INPUT_COMMITTER_USERNAME']
+    delete process.env['INPUT_COMMITTER_EMAIL']
 })

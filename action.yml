@@ -8,6 +8,18 @@ inputs:
     token:
         description: Your Github token
         required: true
+    committer_username:
+      description: >
+        The username (not display name) of the committer that will be used in the commit of changes in the workflow file in specific repository.
+        In the format `web-flow`.
+      default: web-flow
+      required: false
+    committer_email:
+      description: >
+        The email of the committer that will be used in the commit of changes in the workflow file in specific repository.
+        In the format `noreply@github.com`.
+      default: noreply@github.com
+      required: false
     changelog_input:
         description: Your changelog content
         required: true

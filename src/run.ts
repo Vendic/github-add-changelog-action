@@ -2,24 +2,29 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import {simpleGit, SimpleGit, SimpleGitOptions} from "simple-git";
 import path from "path";
-import {existsSync, mkdirSync} from "fs";
-
-
+import {existsSync, mkdirSync, readFileSync, rmSync, writeFileSync} from "fs";
+import {Changelog, parser, Release} from "keep-a-changelog";
+import {randomBytes} from "crypto";
+import {clone, push, isChangelogChanged} from './git'
 
 export default async function run(): Promise<void> {
     try {
-        core.debug('Starting task id extraction.')
+        core.debug('Starting updating CHANGELOG.md')
         const token = process.env.GITHUB_TOKEN || core.getInput('token')
+        const committerUsername = core.getInput('committer_username');
+        const committerEmail = core.getInput('committer_email');
+
         // const changelog_input = core.getInput('changelog_input');
         // const octokit = github.getOctokit(token)
-        // const pull_request = github.context.payload.pull_request ?? github.context.payload.event.pull_request
+        const pull_request = github.context.payload.pull_request ?? github.context.payload.event.pull_request
         const repoUrl = github.context.payload.repositoryUrl
-        // const body = pull_request.body
+        const body = pull_request.body
 
-
+        console.log(body)
 
         // Creating folder where repo will be cloned + init git client
-        const dir = path.join(process.cwd(), './clones');
+        const folder = './clone' + randomBytes(4).toString('hex')
+        const dir = path.join(process.cwd(), folder);
         await mkdirSync(dir)
 
         const options: Partial<SimpleGitOptions> = {
@@ -28,45 +33,65 @@ export default async function run(): Promise<void> {
             maxConcurrentProcesses: 1,
             trimmed: false
         }
-        const git : SimpleGit = simpleGit(options);
+        const git: SimpleGit = simpleGit(options);
 
         // Clone repo and check changelog file
         await clone(token, repoUrl, dir, git);
         await checkIfChangelogExists(dir)
 
-        // Change CHANGELOG.md
+        const changelogPath = `${dir}/CHANGELOG.md`
+        const changelogContent = readFileSync(changelogPath, {encoding: 'utf8', flag: 'r'});
+        const changelog: Changelog = parser(changelogContent);
+        const unreleased = getUnReleasedSection(changelog);
+
+        // Add stuff to changelog
+        core.info('Start changing CHANGELOG.md')
+        unreleased.addChange('added', 'auto change!')
+
+        // Update changelog
+        writeFileSync(changelogPath, changelog.toString())
+        core.debug(`Changelog updated contents:`)
+        core.debug(changelog.toString())
+
+        // Check if  CHANGELOG.md was changed
+        await git.add('./CHANGELOG.md');
+        if (await isChangelogChanged(git) === false) {
+            throw new Error('CHANGELOG.md was not changed!')
+        }
 
         // Push to development branch
+        await push('CHANGELOG.md updated', committerUsername, committerEmail, git)
+        core.info('CHANGELOG.md was updated.')
+        core.setOutput('changelog_updated', true)
+
+        // Cleanup folder
+        rmSync(dir, { recursive: true})
 
     } catch (error) {
         core.setFailed(`Action failed: ${error}`)
     }
 }
 
-// @ts-ignore
-async function clone(token: string, remote : string, dir: string, git: SimpleGit) {
-    const REMOTE = 'auth';
-    core.info(`Cloning ${remote}`);
-    const remoteWithToken = await getAuthanticatedUrl(token, remote);
-    await git.clone(remoteWithToken, dir, {'--depth': 1});
-    await git.addRemote(REMOTE, remoteWithToken);
-}
-
-/**
- * Creates a url with authentication token in it
- *
- * @param  {String} token access token to GitHub
- * @param  {String} url repo URL
- * @returns  {String}
- */
-async function getAuthanticatedUrl(token : string, url : string) : Promise<string> {
-    const arr = url.split('//');
-    return `https://${token}@${arr[arr.length - 1]}.git`;
-};
-
-async function checkIfChangelogExists(dir : string) {
+async function checkIfChangelogExists(dir: string) {
     const changelogPath = `${dir}/CHANGELOG.md`
     if (existsSync(changelogPath) === false) {
         throw new Error('Repo has no CHANGELOG.md')
     }
- }
+}
+
+/**
+ * Get unreleased section from CHANGELOG.md or create one if it does not exist.
+ * @param changelog
+ */
+function getUnReleasedSection(changelog: Changelog): Release {
+    let unreleased: Release | undefined = changelog.releases.find((release) => {
+        return release.version === undefined;
+    })
+    if (typeof unreleased === "undefined") {
+        unreleased = new Release();
+        changelog.addRelease(unreleased)
+    }
+    return unreleased;
+}
+
+
