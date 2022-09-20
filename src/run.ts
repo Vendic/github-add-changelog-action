@@ -6,6 +6,7 @@ import {existsSync, mkdirSync, readFileSync, rmSync, writeFileSync} from "fs";
 import {Changelog, parser, Release} from "keep-a-changelog";
 import {randomBytes} from "crypto";
 import {clone, push, isChangelogChanged} from './git'
+import {ChangelogEntry, extractEntriesFromMarkdown, extractChangelogSection} from "./changelog_entries";
 
 export default async function run(): Promise<void> {
     try {
@@ -13,14 +14,19 @@ export default async function run(): Promise<void> {
         const token = process.env.GITHUB_TOKEN || core.getInput('token')
         const committerUsername = core.getInput('committer_username');
         const committerEmail = core.getInput('committer_email');
-
-        // const changelog_input = core.getInput('changelog_input');
-        // const octokit = github.getOctokit(token)
         const pull_request = github.context.payload.pull_request ?? github.context.payload.event.pull_request
         const repoUrl = github.context.payload.repositoryUrl
-        const body = pull_request.body
 
-        console.log(body)
+        // Extract changelog section
+        const changelogSection = extractChangelogSection(pull_request.body)
+        core.info(`Found changelog section in pull request body`)
+
+        // Extract changelog sections
+        const changelogEntries : ChangelogEntry[] = extractEntriesFromMarkdown(changelogSection);
+        if (changelogEntries.length === 0) {
+            core.info('No changelog entries found in pull reuqest')
+            return
+        }
 
         // Creating folder where repo will be cloned + init git client
         const folder = './clone' + randomBytes(4).toString('hex')
@@ -46,7 +52,10 @@ export default async function run(): Promise<void> {
 
         // Add stuff to changelog
         core.info('Start changing CHANGELOG.md')
-        unreleased.addChange('added', 'auto change!')
+        changelogEntries.forEach((changelogEntry : ChangelogEntry) => {
+            core.info(`Adding ${changelogEntry.text} to changelog. Text: ${changelogEntry.text}`)
+            unreleased.addChange(changelogEntry.type, changelogEntry.text)
+        })
 
         // Update changelog
         writeFileSync(changelogPath, changelog.toString())
@@ -93,5 +102,3 @@ function getUnReleasedSection(changelog: Changelog): Release {
     }
     return unreleased;
 }
-
-

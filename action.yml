@@ -20,7 +20,4 @@ inputs:
         In the format `noreply@github.com`.
       default: noreply@github.com
       required: false
-    changelog_input:
-        description: Your changelog content
-        required: true
 

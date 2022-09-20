@@ -7,6 +7,10 @@ import {WebhookPayload} from "@actions/github/lib/interfaces";
 import {expect, test} from '@jest/globals'
 
 test('Test main run', async () => {
+    if (!process.env['INPUT_COMMITTER_USERNAME'] || !process.env['INPUT_COMMITTER_USERNAME'] || !process.env['INPUT_COMMITTER_EMAIL']) {
+        return
+    }
+
     // Mocks
     const failedMock = jest.spyOn(core, 'setFailed');
     const infoMock = jest.spyOn(core, 'info');
@@ -22,6 +26,7 @@ test('Test main run', async () => {
 })
 
 beforeEach(() => {
+    // INPUT_COMMITTER_USERNAME, INPUT_COMMITTER_EMAIL and INPUT_TOKEN are specified via enviroment variables
     jest.resetModules()
 })
 
