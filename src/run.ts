@@ -20,6 +20,7 @@ export default async function run(): Promise<void> {
         // Extract changelog section
         const changelogSection = extractChangelogSection(pull_request.body)
         core.info(`Found changelog section in pull request body`)
+        core.debug(changelogSection)
 
         // Extract changelog sections
         const changelogEntries : ChangelogEntry[] = extractEntriesFromMarkdown(changelogSection);

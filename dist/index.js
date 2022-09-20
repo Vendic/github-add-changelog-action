@@ -15180,6 +15180,7 @@ async function run() {
         // Extract changelog section
         const changelogSection = (0, changelog_entries_1.extractChangelogSection)(pull_request.body);
         core.info(`Found changelog section in pull request body`);
+        core.debug(changelogSection);
         // Extract changelog sections
         const changelogEntries = (0, changelog_entries_1.extractEntriesFromMarkdown)(changelogSection);
         if (changelogEntries.length === 0) {
