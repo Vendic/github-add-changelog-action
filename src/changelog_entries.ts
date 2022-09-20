@@ -29,6 +29,10 @@ export function extractEntriesFromMarkdown(markdown : string) : ChangelogEntry[]
         return []
     }
     core.info(`Found ${themesContent.length} themes.`)
+    themesContent.forEach((themesContent) => {
+        core.debug('Theme content is:')
+        core.debug(themesContent)
+    })
 
     let changeLogEntries : ChangelogEntry[] = []
     const themes = Object.values(Themes)

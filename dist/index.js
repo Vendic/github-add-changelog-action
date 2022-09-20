@@ -14982,6 +14982,10 @@ function extractEntriesFromMarkdown(markdown) {
         return [];
     }
     core.info(`Found ${themesContent.length} themes.`);
+    themesContent.forEach((themesContent) => {
+        core.debug('Theme content is:');
+        core.debug(themesContent);
+    });
     let changeLogEntries = [];
     const themes = Object.values(Themes);
     themes.forEach((section) => {
