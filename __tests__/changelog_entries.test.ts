@@ -42,8 +42,13 @@ test('Extract CHANGELOG section from pull request body', async () => {
         '### Changed\n' +
         '- [Hello](World) Hello world\n' +
         '- [Hello](World) Hello world 2\n' +
-        '- [Hello](World) Hello world 3';
-
+        '- [Hello](World) Hello world 3\n' +
+        '\n' +
+        '### Deprecated\n' +
+        '- [Hello](World) Hello\n' +
+        '\n' +
+        '### Fixed\n' +
+        '- [A fix](www.vendic.nl) Fixed\n'
 
     expect(extractChangelogSection(fileContents)).toEqual(expectedResult)
 })

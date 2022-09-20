@@ -84,19 +84,18 @@ export function extractChangelogSection(body: string) : string {
     }
 
     // @ts-ignore
-    const changelogSection = body.match(/##(.|\s\S)*/g).find((section : any) => {
-        core.debug(`Section: ${section}`)
-        if (typeof section !== 'string') {
-            return false;
-        }
-        return /[#]{1,3}\s{1}[Cc]{1}hangelog/.test(section)
-    })
+    const matches = body.match(/#{2,3}\s[Cc]hangelog[\S\s]+/g);
+    if (!Array.isArray(matches) || matches.length !== 1) {
+        core.info('Cannot extract CHANGELOG from body')
+    }
+    const changelogSection = matches[0]
 
     if (typeof changelogSection !== 'string') {
         throw new Error('Changelog missing in pull request body!')
     }
 
-    core.debug(`Matching section: ${changelogSection}`)
+    core.debug(`Matching section:`)
+    core.debug(changelogSection)
 
     return changelogSection
 }
