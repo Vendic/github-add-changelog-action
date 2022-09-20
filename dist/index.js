@@ -14974,10 +14974,12 @@ var Themes;
  * @param markdown
  */
 function extractEntriesFromMarkdown(markdown) {
+    core.info('Extracting entries from markdown');
     const themesContent = markdown.match((/###(.|\s\S)*/g));
     if (typeof themesContent === null || Array.isArray(themesContent) && themesContent.length === 0) {
         throw new Error('No changelog themes found.');
     }
+    core.info(`Found ${themesContent.length} themes.`);
     let changeLogEntries = [];
     const themes = Object.values(Themes);
     themes.forEach((section) => {
