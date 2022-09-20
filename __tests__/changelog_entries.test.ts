@@ -1,5 +1,6 @@
 import {expect, test} from '@jest/globals'
-import {extractEntriesFromMarkdown, ChangelogEntry} from '../src/changelog_entries'
+import {extractChangelogSection, extractEntriesFromMarkdown, ChangelogEntry} from '../src/changelog_entries'
+import fs from "fs";
 
 test('Extract nothing from markdown', async () => {
     const text = 'Some other text, definitely not a changelog.'
@@ -33,4 +34,16 @@ test('Extract multiple changelog entries from markdown', async () => {
     ]
 
     expect(extractEntriesFromMarkdown(txt)).toEqual(expectedOutput)
+})
+
+test('Extract CHANGELOG section from pull request body', async () => {
+    const fileContents = fs.readFileSync(__dirname + '/pr_body.md', 'utf8')
+    const expectedResult = '## Changelog\n' +
+        '### Changed\n' +
+        '- [Hello](World) Hello world\n' +
+        '- [Hello](World) Hello world 2\n' +
+        '- [Hello](World) Hello world 3';
+
+
+    expect(extractChangelogSection(fileContents)).toEqual(expectedResult)
 })

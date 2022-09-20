@@ -15023,7 +15023,7 @@ exports.extractEntriesFromMarkdown = extractEntriesFromMarkdown;
  */
 function extractChangelogSection(body) {
     core.debug('PR body:');
-    core.debug(body);
+    core.debug(JSON.stringify(body));
     if (typeof body !== "string") {
         throw new Error('Pull request has no body');
     }
