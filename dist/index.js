@@ -14996,12 +14996,13 @@ function extractEntriesFromMarkdown(markdown) {
         if (typeof themeContent !== "string") {
             return;
         }
-        core.debug(`Section: ${section} found. `);
+        core.info(`Section: ${section} found. `);
         core.debug(`Value: ${themeContent}`);
         // Split the content based on newlines, then check if we are dealing with a list.
         themeContent
-            .split('\n')
+            .split(/\r?\n/)
             .filter((line) => {
+            core.debug(`Found line: ${line}`);
             return /^-\s{1}.*$/.test(line);
         })
             .forEach((filteredLine) => {
