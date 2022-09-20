@@ -1,6 +1,13 @@
 import {expect, test} from '@jest/globals'
 import {extractEntriesFromMarkdown, ChangelogEntry} from '../src/changelog_entries'
 
+test('Extract nothing from markdown', async () => {
+    const text = 'Some other text, definitely not a changelog.'
+    const expectedOutput : ChangelogEntry[] = []
+
+    expect(extractEntriesFromMarkdown(text)).toEqual(expectedOutput)
+})
+
 test('Extract multiple changelog entries from markdown', async () => {
     const txt = '## Changelog\n' +
         '### Changed\n' +

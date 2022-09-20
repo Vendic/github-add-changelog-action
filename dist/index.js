@@ -14975,9 +14975,11 @@ var Themes;
  */
 function extractEntriesFromMarkdown(markdown) {
     core.info('Extracting entries from markdown');
+    core.debug('Searching through:');
+    core.debug(markdown);
     const themesContent = markdown.match((/###(.|\s\S)*/g));
-    if (typeof themesContent === null || Array.isArray(themesContent) && themesContent.length === 0) {
-        throw new Error('No changelog themes found.');
+    if (!Array.isArray(themesContent) || Array.isArray(themesContent) && themesContent.length === 0) {
+        return [];
     }
     core.info(`Found ${themesContent.length} themes.`);
     let changeLogEntries = [];
@@ -15186,7 +15188,7 @@ async function run() {
         // Extract changelog sections
         const changelogEntries = (0, changelog_entries_1.extractEntriesFromMarkdown)(changelogSection);
         if (changelogEntries.length === 0) {
-            core.info('No changelog entries found in pull reuqest');
+            core.warning('No changelog entries found in pull request');
             return;
         }
         // Creating folder where repo will be cloned + init git client

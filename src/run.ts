@@ -25,7 +25,7 @@ export default async function run(): Promise<void> {
         // Extract changelog sections
         const changelogEntries : ChangelogEntry[] = extractEntriesFromMarkdown(changelogSection);
         if (changelogEntries.length === 0) {
-            core.info('No changelog entries found in pull reuqest')
+            core.warning('No changelog entries found in pull request')
             return
         }
 
