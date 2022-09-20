@@ -23,7 +23,7 @@ export function extractEntriesFromMarkdown(markdown : string) : ChangelogEntry[]
     core.info('Extracting entries from markdown')
     core.debug('Searching through:')
     core.debug(markdown)
-    const themesContent = markdown.match((/###(.|\s\S)*/g));
+    const themesContent = markdown.match(/###[^#]+/mg);
 
     if (!Array.isArray(themesContent) || Array.isArray(themesContent) && themesContent.length === 0) {
         return []

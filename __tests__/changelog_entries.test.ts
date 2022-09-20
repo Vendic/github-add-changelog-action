@@ -10,13 +10,13 @@ test('Extract nothing from markdown', async () => {
 })
 
 test('Extract multiple changelog entries from markdown', async () => {
-    const txt = '## Changelog\n' +
-        '### Changed\n' +
-        '- [TEST-123](https://www.vendic.nl/) Some change\n' +
-        '- [TEST-123](https://www.vendic.nl/) Some change 2\n' +
-        '\n' +
-        '### Removed\n' +
-        '- [TEST-123](https://www.vendic.nl/) Removal of something\n'
+    const txt = `## Changelog
+### Changed
+- [TEST-123](https://www.vendic.nl/) Some change
+- [TEST-123](https://www.vendic.nl/) Some change 2
+
+### Removed
+- [TEST-123](https://www.vendic.nl/) Removal of something`
 
     const expectedOutput : ChangelogEntry[] = [
         {
