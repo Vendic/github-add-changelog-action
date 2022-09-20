@@ -2,7 +2,7 @@ name: 'github-add-changelog-action'
 description: 'Extract changelog entries and add to CHANGELOG.md'
 author: 'Tjitse-E'
 runs:
-    using: 'node12'
+    using: 'node16'
     main: 'dist/index.js'
 inputs:
     token:
