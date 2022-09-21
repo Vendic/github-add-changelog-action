@@ -15002,7 +15002,7 @@ function extractEntriesFromMarkdown(markdown) {
         themeContent
             // After several tests I found out that this regex is the most reliable
             // It splits on both \r\n and \n. The Github PR body that I tested contained \r\n line breaks
-            .split(/(\\r?\\n|\n)/)
+            .split(/(\r\n|\n)/)
             .filter((line) => {
             return /^-\s{1}.*$/.test(line);
         })
