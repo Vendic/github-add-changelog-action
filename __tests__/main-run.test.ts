@@ -25,6 +25,21 @@ test('Test main run', async () => {
     expect(infoMock).toHaveBeenCalledWith('CHANGELOG.md was updated.')
 })
 
+test('Test main run without Github token', async () => {
+    delete process.env['INPUT_TOKEN']
+
+    // Mocks
+    const failedMock = jest.spyOn(core, 'setFailed');
+    const payloadPath = path.join(__dirname, 'pull_request_context.json');
+    const payload = JSON.parse(fs.readFileSync(payloadPath, 'utf8'))
+    github.context.payload = payload as WebhookPayload
+
+    await run()
+
+    // Assertions
+    expect(failedMock).toHaveBeenCalledTimes(1)
+})
+
 beforeEach(() => {
     // INPUT_COMMITTER_USERNAME, INPUT_COMMITTER_EMAIL and INPUT_TOKEN are specified via enviroment variables
     jest.resetModules()

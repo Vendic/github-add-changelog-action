@@ -12,6 +12,10 @@ export default async function run(): Promise<void> {
     try {
         core.debug('Starting updating CHANGELOG.md')
         const token = process.env.GITHUB_TOKEN || core.getInput('token')
+        if (token === '' || typeof token === 'undefined') {
+            throw new Error('Input token is missing or empty.')
+        }
+
         const committerUsername = core.getInput('committer_username');
         const committerEmail = core.getInput('committer_email');
         const pull_request = github.context.payload.pull_request ?? github.context.payload.event.pull_request
