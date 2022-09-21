@@ -15084,7 +15084,6 @@ const REMOTE = 'auth';
 async function clone(token, remote, dir, git) {
     core.info(`Cloning ${remote}`);
     const remoteWithToken = await getAuthanticatedUrl(token, remote);
-    core.debug(`Authenticated url: ${remoteWithToken}`);
     await git.clone(remoteWithToken, dir, { '--depth': 1 });
     await git.addRemote(REMOTE, remoteWithToken);
 }
