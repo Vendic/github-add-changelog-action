@@ -51,7 +51,9 @@ export function extractEntriesFromMarkdown(markdown : string) : ChangelogEntry[]
 
         // Split the content based on newlines, then check if we are dealing with a list.
          themeContent
-            .split(/\r?\n/)
+             // After several tests I found out that this regex is the most reliable
+             // It splits on both \r\n and \n. The Github PR body that I tested contained \r\n line breaks
+            .split(/(\\r?\\n|\n)/)
             .filter((line) => {
                 return /^-\s{1}.*$/.test(line)
             })
