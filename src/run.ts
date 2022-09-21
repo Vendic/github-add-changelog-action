@@ -15,7 +15,7 @@ export default async function run(): Promise<void> {
         const committerUsername = core.getInput('committer_username');
         const committerEmail = core.getInput('committer_email');
         const pull_request = github.context.payload.pull_request ?? github.context.payload.event.pull_request
-        const repoUrl = github.context.payload.repositoryUrl
+        const repoUrl = github.context.payload.repository.html_url
 
         // Extract changelog section
         const changelogSection = extractChangelogSection(pull_request.body)

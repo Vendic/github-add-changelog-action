@@ -15002,7 +15002,6 @@ function extractEntriesFromMarkdown(markdown) {
         themeContent
             .split(/\r?\n/)
             .filter((line) => {
-            core.debug(`Found line: ${line}`);
             return /^-\s{1}.*$/.test(line);
         })
             .forEach((filteredLine) => {
@@ -15186,7 +15185,7 @@ async function run() {
         const committerUsername = core.getInput('committer_username');
         const committerEmail = core.getInput('committer_email');
         const pull_request = (_a = github.context.payload.pull_request) !== null && _a !== void 0 ? _a : github.context.payload.event.pull_request;
-        const repoUrl = github.context.payload.repositoryUrl;
+        const repoUrl = github.context.payload.repository.html_url;
         // Extract changelog section
         const changelogSection = (0, changelog_entries_1.extractChangelogSection)(pull_request.body);
         core.info(`Found changelog section in pull request body`);

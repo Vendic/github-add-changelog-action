@@ -53,7 +53,6 @@ export function extractEntriesFromMarkdown(markdown : string) : ChangelogEntry[]
          themeContent
             .split(/\r?\n/)
             .filter((line) => {
-                core.debug(`Found line: ${line}`)
                 return /^-\s{1}.*$/.test(line)
             })
             .forEach((filteredLine)  => {
