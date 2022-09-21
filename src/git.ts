@@ -6,6 +6,7 @@ const REMOTE = 'auth';
 export async function clone(token: string, remote: string, dir: string, git: SimpleGit) {
     core.info(`Cloning ${remote}`);
     const remoteWithToken = await getAuthanticatedUrl(token, remote);
+    core.debug(`Authenticated url: ${remoteWithToken}`)
     await git.clone(remoteWithToken, dir, {'--depth': 1});
     await git.addRemote(REMOTE, remoteWithToken);
 }
