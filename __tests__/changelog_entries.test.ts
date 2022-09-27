@@ -56,7 +56,7 @@ test('Extract multiple changelog entries from markdown with \r\n line breaks', a
             type: 'fixed'
         },
         {
-            text: '- A great fix!',
+            text: 'A great fix!',
             type: 'fixed'
         }
     ]
