@@ -61,7 +61,7 @@ export function extractEntriesFromMarkdown(markdown : string) : ChangelogEntry[]
             })
             .forEach((filteredLine)  => {
                 changeLogEntries.push({
-                    text: filteredLine.replace(/(^-\s|\r\n|\n|\r)/, ''),
+                    text: filteredLine.replace(/(^-\s|\\r\\n$|\\n$|\\r$)/, ''),
                     type: section.toLowerCase()
                 })
             })
