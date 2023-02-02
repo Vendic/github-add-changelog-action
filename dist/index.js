@@ -15099,7 +15099,7 @@ exports.clone = clone;
  */
 async function getAuthanticatedUrl(token, url) {
     const arr = url.split('//');
-    return `https://${token}@${arr[arr.length - 1]}.git`;
+    return `https://oauth2:${token}@${arr[arr.length - 1]}.git`;
 }
 ;
 async function isChangelogChanged(git) {
@@ -15184,15 +15184,19 @@ async function run() {
     try {
         core.debug('Starting updating CHANGELOG.md');
         const token = process.env.GITHUB_TOKEN || core.getInput('token');
+        const committerUsername = core.getInput('committer_username');
+        const committerEmail = core.getInput('committer_email');
+        const repoUrl = github.context.payload.repository.html_url;
+        core.info(`Starting updating CHANGELOG.md for ${repoUrl}`);
         if (token === '' || typeof token === 'undefined') {
             throw new Error('Input token is missing or empty.');
         }
-        const committerUsername = core.getInput('committer_username');
-        const committerEmail = core.getInput('committer_email');
-        const pull_request = (_a = github.context.payload.pull_request) !== null && _a !== void 0 ? _a : github.context.payload.event.pull_request;
-        const repoUrl = github.context.payload.repository.html_url;
-        // Extract changelog section
-        const changelogSection = (0, changelog_entries_1.extractChangelogSection)(pull_request.body);
+        let body = core.getInput('body');
+        if (body.length === 0) {
+            const pull_request = (_a = github.context.payload.pull_request) !== null && _a !== void 0 ? _a : github.context.payload.event.pull_request;
+            body = pull_request.body;
+        }
+        const changelogSection = (0, changelog_entries_1.extractChangelogSection)(body);
         core.info(`Found changelog section in pull request body`);
         core.debug(changelogSection);
         // Extract changelog sections

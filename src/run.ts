@@ -12,17 +12,23 @@ export default async function run(): Promise<void> {
     try {
         core.debug('Starting updating CHANGELOG.md')
         const token = process.env.GITHUB_TOKEN || core.getInput('token')
+        const committerUsername = core.getInput('committer_username');
+        const committerEmail = core.getInput('committer_email');
+        const repoUrl = github.context.payload.repository.html_url
+
+        core.info(`Starting updating CHANGELOG.md for ${repoUrl}`)
+
         if (token === '' || typeof token === 'undefined') {
             throw new Error('Input token is missing or empty.')
         }
 
-        const committerUsername = core.getInput('committer_username');
-        const committerEmail = core.getInput('committer_email');
-        const pull_request = github.context.payload.pull_request ?? github.context.payload.event.pull_request
-        const repoUrl = github.context.payload.repository.html_url
+        let body = core.getInput('body')
+        if (body.length === 0) {
+            const pull_request = github.context.payload.pull_request ?? github.context.payload.event.pull_request
+            body = pull_request.body
+        }
 
-        // Extract changelog section
-        const changelogSection = extractChangelogSection(pull_request.body)
+        const changelogSection = extractChangelogSection(body)
         core.info(`Found changelog section in pull request body`)
         core.debug(changelogSection)
 

@@ -20,4 +20,6 @@ inputs:
         In the format `noreply@github.com`.
       default: noreply@github.com
       required: false
-
+    body:
+        description: The body of the PR
+        required: false

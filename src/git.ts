@@ -19,7 +19,7 @@ export async function clone(token: string, remote: string, dir: string, git: Sim
  */
 async function getAuthanticatedUrl(token: string, url: string): Promise<string> {
     const arr = url.split('//');
-    return `https://${token}@${arr[arr.length - 1]}.git`;
+    return `https://oauth2:${token}@${arr[arr.length - 1]}.git`;
 };
 
 export async function isChangelogChanged(git: SimpleGit): Promise<boolean> {
