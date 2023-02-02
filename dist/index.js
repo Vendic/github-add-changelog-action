@@ -15182,10 +15182,11 @@ const crypto_1 = __nccwpck_require__(6113);
 const git_1 = __nccwpck_require__(7732);
 const changelog_entries_1 = __nccwpck_require__(2677);
 async function run() {
-    var _a;
+    var _a, _b;
     try {
         core.debug('Starting updating CHANGELOG.md');
         const token = process.env.GITHUB_TOKEN || core.getInput('token');
+        const commitMessage = (_a = core.getInput('commit_message')) !== null && _a !== void 0 ? _a : 'Update CHANGELOG.md';
         const committerUsername = core.getInput('committer_username');
         const committerEmail = core.getInput('committer_email');
         const repoUrl = github.context.payload.repository.html_url;
@@ -15195,7 +15196,7 @@ async function run() {
         }
         let body = core.getInput('body');
         if (body.length === 0) {
-            const pull_request = (_a = github.context.payload.pull_request) !== null && _a !== void 0 ? _a : github.context.payload.event.pull_request;
+            const pull_request = (_b = github.context.payload.pull_request) !== null && _b !== void 0 ? _b : github.context.payload.event.pull_request;
             body = pull_request.body;
         }
         // Remove for double quotes at the start or end of body
@@ -15245,7 +15246,7 @@ async function run() {
             throw new Error('CHANGELOG.md was not changed!');
         }
         // Push to development branch
-        await (0, git_1.push)('CHANGELOG.md updated', committerUsername, committerEmail, git);
+        await (0, git_1.push)(commitMessage, committerUsername, committerEmail, git);
         core.info('CHANGELOG.md was updated.');
         core.setOutput('changelog_updated', true);
         // Cleanup folder

@@ -12,6 +12,7 @@ export default async function run(): Promise<void> {
     try {
         core.debug('Starting updating CHANGELOG.md')
         const token = process.env.GITHUB_TOKEN || core.getInput('token')
+        const commitMessage = core.getInput('commit_message') ?? 'Update CHANGELOG.md'
         const committerUsername = core.getInput('committer_username');
         const committerEmail = core.getInput('committer_email');
         const repoUrl = github.context.payload.repository.html_url
@@ -86,7 +87,7 @@ export default async function run(): Promise<void> {
         }
 
         // Push to development branch
-        await push('CHANGELOG.md updated', committerUsername, committerEmail, git)
+        await push(commitMessage, committerUsername, committerEmail, git)
         core.info('CHANGELOG.md was updated.')
         core.setOutput('changelog_updated', true)
 
