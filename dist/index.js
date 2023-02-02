@@ -15087,7 +15087,7 @@ function extractEntriesFromMarkdown(markdown) {
         })
             .forEach((filteredLine) => {
             changeLogEntries.push({
-                text: filteredLine.replace(/(^-\s|\\r\\n$|\\n$|\\r$)/, ''),
+                text: filteredLine.replace(/(^-\s|\\r\\n)/g, ''),
                 type: section.toLowerCase()
             });
         });
