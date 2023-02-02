@@ -15196,6 +15196,8 @@ async function run() {
             const pull_request = (_a = github.context.payload.pull_request) !== null && _a !== void 0 ? _a : github.context.payload.event.pull_request;
             body = pull_request.body;
         }
+        core.info(`Searching through pull request body for changelog section:`);
+        core.info(body);
         const changelogSection = (0, changelog_entries_1.extractChangelogSection)(body);
         core.info(`Found changelog section in pull request body`);
         core.debug(changelogSection);

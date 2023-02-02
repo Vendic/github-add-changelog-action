@@ -28,6 +28,9 @@ export default async function run(): Promise<void> {
             body = pull_request.body
         }
 
+        core.info(`Searching through pull request body for changelog section:`)
+        core.info(body)
+
         const changelogSection = extractChangelogSection(body)
         core.info(`Found changelog section in pull request body`)
         core.debug(changelogSection)
