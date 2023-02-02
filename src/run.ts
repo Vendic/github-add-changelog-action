@@ -28,6 +28,9 @@ export default async function run(): Promise<void> {
             body = pull_request.body
         }
 
+        // Remove for double quotes at the start or end of body
+        body = body.replace(/(^"|"$)/g, '');
+
         core.info(`Searching through pull request body for changelog section:`)
         core.info(body)
 
