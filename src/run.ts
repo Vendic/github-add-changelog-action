@@ -12,17 +12,30 @@ export default async function run(): Promise<void> {
     try {
         core.debug('Starting updating CHANGELOG.md')
         const token = process.env.GITHUB_TOKEN || core.getInput('token')
+        const commitMessage = core.getInput('commit_message') ?? 'Update CHANGELOG.md'
+        const committerUsername = core.getInput('committer_username');
+        const committerEmail = core.getInput('committer_email');
+        const repoUrl = github.context.payload.repository.html_url
+
+        core.info(`Starting updating CHANGELOG.md for ${repoUrl}`)
+
         if (token === '' || typeof token === 'undefined') {
             throw new Error('Input token is missing or empty.')
         }
 
-        const committerUsername = core.getInput('committer_username');
-        const committerEmail = core.getInput('committer_email');
-        const pull_request = github.context.payload.pull_request ?? github.context.payload.event.pull_request
-        const repoUrl = github.context.payload.repository.html_url
+        let body = core.getInput('body')
+        if (body.length === 0) {
+            const pull_request = github.context.payload.pull_request ?? github.context.payload.event.pull_request
+            body = pull_request.body
+        }
 
-        // Extract changelog section
-        const changelogSection = extractChangelogSection(pull_request.body)
+        // Remove for double quotes at the start or end of body
+        body = body.replace(/(^"|"$)/g, '');
+
+        core.info(`Searching through pull request body for changelog section:`)
+        core.info(body)
+
+        const changelogSection = extractChangelogSection(body)
         core.info(`Found changelog section in pull request body`)
         core.debug(changelogSection)
 
@@ -74,7 +87,7 @@ export default async function run(): Promise<void> {
         }
 
         // Push to development branch
-        await push('CHANGELOG.md updated', committerUsername, committerEmail, git)
+        await push(commitMessage, committerUsername, committerEmail, git)
         core.info('CHANGELOG.md was updated.')
         core.setOutput('changelog_updated', true)
 

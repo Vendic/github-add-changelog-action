@@ -9,6 +9,35 @@ test('Extract nothing from markdown', async () => {
     expect(extractEntriesFromMarkdown(text)).toEqual(expectedOutput)
 })
 
+
+test('Extract single changelog entries fetched via the Github API', async () => {
+    const txt = `## Changelog\\r\\n### Changed\\r\\n- [Hello](World) Hello world`
+
+    const expectedOutput : ChangelogEntry[] = [
+        {
+            text: '[Hello](World) Hello world',
+            type: 'changed'
+        }
+    ]
+
+    expect(extractEntriesFromMarkdown(txt)).toEqual(expectedOutput)
+})
+
+test('Extract single changelog entry fetched via the Github API that ends with \r\n', async () => {
+    const txt = `## Changelog\\r\\n### Changed\\r\\n- Change 123\\r\\n`
+
+    const expectedOutput : ChangelogEntry[] = [
+        {
+            text: 'Change 123',
+            type: 'changed'
+        }
+    ]
+
+    expect(extractEntriesFromMarkdown(txt)).toEqual(expectedOutput)
+})
+
+
+
 test('Extract multiple changelog entries from markdown with regular line breaks', async () => {
     const txt = `## Changelog
 ### Changed
