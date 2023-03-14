@@ -9,15 +9,47 @@ test('Extract nothing from markdown', async () => {
     expect(extractEntriesFromMarkdown(text)).toEqual(expectedOutput)
 })
 
+test('Extract changelog entries with leading spaces', async () => {
+    const txtWithLeadingSpace = `## Changelog
+### Changed
+- [TEST-123](https://www.vendic.nl/) Some change
+ - [TEST-123](https://www.vendic.nl/) Some change 2
+
+### Removed
+ - [TEST-123](https://www.vendic.nl/) Removal of something`
+
+
+    const expectedOutput : ChangelogEntry[] = [
+        {
+            text: '[TEST-123](https://www.vendic.nl/) Some change',
+            type: 'changed'
+        },
+        {
+            text: '[TEST-123](https://www.vendic.nl/) Some change 2',
+            type: 'changed'
+        },
+        {
+            text: '[TEST-123](https://www.vendic.nl/) Removal of something',
+            type: 'removed'
+        }
+    ]
+
+    expect(extractEntriesFromMarkdown(txtWithLeadingSpace)).toEqual(expectedOutput)
+})
+
 
 test('Extract single changelog entries fetched via the Github API', async () => {
-    const txt = `## Changelog\\r\\n### Changed\\r\\n- [Hello](World) Hello world`
+    const txt = `## Changelog\\r\\n### Changed\\r\\n- [Hello](World) Hello world\\r\\n- [Hello](World) Hello world\\r\\n`
 
     const expectedOutput : ChangelogEntry[] = [
         {
             text: '[Hello](World) Hello world',
             type: 'changed'
-        }
+        },
+        {
+            text: '[Hello](World) Hello world',
+            type: 'changed'
+        },
     ]
 
     expect(extractEntriesFromMarkdown(txt)).toEqual(expectedOutput)

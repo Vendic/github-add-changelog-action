@@ -15077,17 +15077,18 @@ function extractEntriesFromMarkdown(markdown) {
         core.debug(`Value: ${themeContent}`);
         // Split the content based on newlines, then check if we are dealing with a list.
         themeContent
-            // Replace \r\n with \n
-            .replace('\\r\\n', '\n')
+            // Replace all "\r\n" with \n
+            .replace(/\\r\\n/g, '\n')
             // After several tests I found out that this regex is the most reliable
             // It splits on both \r\n and \n. The Github PR body that I tested contained \r\n line breaks
             .split(/(\r\n|\n)/)
             .filter((line) => {
-            return /^-\s{1}.*$/.test(line);
+            // See https://regex101.com/r/4XYvpR/1
+            return /^\s?-\s.*$/.test(line);
         })
             .forEach((filteredLine) => {
             changeLogEntries.push({
-                text: filteredLine.replace(/(^-\s|\\r\\n)/g, ''),
+                text: filteredLine.trim().replace(/(^-\s|\\r\\n)/g, ''),
                 type: section.toLowerCase()
             });
         });
