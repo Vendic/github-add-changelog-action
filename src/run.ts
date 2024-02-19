@@ -2,7 +2,7 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import {simpleGit, SimpleGit, SimpleGitOptions} from "simple-git";
 import path from "path";
-import {existsSync, mkdirSync, readFileSync, rmSync, writeFileSync} from "fs";
+import {existsSync, mkdirSync, readFileSync, rmSync, writeFileSync, copyFileSync} from "fs";
 import {Changelog, parser, Release} from "keep-a-changelog";
 import {randomBytes} from "crypto";
 import {clone, push, isChangelogChanged} from './git'
@@ -16,6 +16,7 @@ export default async function run(): Promise<void> {
         const committerUsername = core.getInput('committer_username');
         const committerEmail = core.getInput('committer_email');
         const repoUrl = github.context.payload.repository.html_url
+        const localChangelogPath = core.getInput('local_changelog_path') ?? null
 
         core.info(`Starting updating CHANGELOG.md for ${repoUrl}`)
 
@@ -61,9 +62,19 @@ export default async function run(): Promise<void> {
 
         // Clone repo and check changelog file
         await clone(token, repoUrl, dir, git);
+        const changelogPath = `${dir}/CHANGELOG.md`
+
+        // Replace cloned changelog with the local one
+        if (localChangelogPath) {
+            if (existsSync(localChangelogPath) === false) {
+                throw new Error(`Local changelog file does not exist: ${localChangelogPath}`)
+            }
+            core.info(`Replacing cloned changelog with local one: ${localChangelogPath}`)
+            copyFileSync(localChangelogPath, changelogPath)
+        }
+
         await checkIfChangelogExists(dir)
 
-        const changelogPath = `${dir}/CHANGELOG.md`
         const changelogContent = readFileSync(changelogPath, {encoding: 'utf8', flag: 'r'});
         const changelog: Changelog = parser(changelogContent);
         const unreleased = getUnReleasedSection(changelog);

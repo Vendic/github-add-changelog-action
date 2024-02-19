@@ -2,9 +2,13 @@ name: 'github-add-changelog-action'
 description: 'Extract changelog entries and add to CHANGELOG.md'
 author: 'Tjitse-E'
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
 inputs:
+  local_changelog_file_path:
+    description: >
+      The path to the local changelog file, we'll use this path instead of the remote file if it's set.
+    required: false
   token:
     description: Your Github token
     required: true

@@ -15260,7 +15260,7 @@ const crypto_1 = __nccwpck_require__(6113);
 const git_1 = __nccwpck_require__(7732);
 const changelog_entries_1 = __nccwpck_require__(2677);
 async function run() {
-    var _a, _b;
+    var _a, _b, _c;
     try {
         core.debug('Starting updating CHANGELOG.md');
         const token = process.env.GITHUB_TOKEN || core.getInput('token');
@@ -15268,13 +15268,14 @@ async function run() {
         const committerUsername = core.getInput('committer_username');
         const committerEmail = core.getInput('committer_email');
         const repoUrl = github.context.payload.repository.html_url;
+        const localChangelogPath = (_b = core.getInput('local_changelog_path')) !== null && _b !== void 0 ? _b : null;
         core.info(`Starting updating CHANGELOG.md for ${repoUrl}`);
         if (token === '' || typeof token === 'undefined') {
             throw new Error('Input token is missing or empty.');
         }
         let body = core.getInput('body');
         if (body.length === 0) {
-            const pull_request = (_b = github.context.payload.pull_request) !== null && _b !== void 0 ? _b : github.context.payload.event.pull_request;
+            const pull_request = (_c = github.context.payload.pull_request) !== null && _c !== void 0 ? _c : github.context.payload.event.pull_request;
             body = pull_request.body;
         }
         // Remove for double quotes at the start or end of body
@@ -15303,8 +15304,16 @@ async function run() {
         const git = (0, simple_git_1.simpleGit)(options);
         // Clone repo and check changelog file
         await (0, git_1.clone)(token, repoUrl, dir, git);
-        await checkIfChangelogExists(dir);
         const changelogPath = `${dir}/CHANGELOG.md`;
+        // Replace cloned changelog with the local one
+        if (localChangelogPath) {
+            if ((0, fs_1.existsSync)(localChangelogPath) === false) {
+                throw new Error(`Local changelog file does not exist: ${localChangelogPath}`);
+            }
+            core.info(`Replacing cloned changelog with local one: ${localChangelogPath}`);
+            (0, fs_1.copyFileSync)(localChangelogPath, changelogPath);
+        }
+        await checkIfChangelogExists(dir);
         const changelogContent = (0, fs_1.readFileSync)(changelogPath, { encoding: 'utf8', flag: 'r' });
         const changelog = (0, keep_a_changelog_1.parser)(changelogContent);
         const unreleased = getUnReleasedSection(changelog);
