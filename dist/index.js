@@ -15268,7 +15268,7 @@ async function run() {
         const committerUsername = core.getInput('committer_username');
         const committerEmail = core.getInput('committer_email');
         const repoUrl = github.context.payload.repository.html_url;
-        const localChangelogPath = (_b = core.getInput('local_changelog_path')) !== null && _b !== void 0 ? _b : null;
+        const localChangelogPath = (_b = core.getInput('local_changelog_file_path')) !== null && _b !== void 0 ? _b : null;
         core.info(`Starting updating CHANGELOG.md for ${repoUrl}`);
         if (token === '' || typeof token === 'undefined') {
             throw new Error('Input token is missing or empty.');

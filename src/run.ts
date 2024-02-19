@@ -16,7 +16,7 @@ export default async function run(): Promise<void> {
         const committerUsername = core.getInput('committer_username');
         const committerEmail = core.getInput('committer_email');
         const repoUrl = github.context.payload.repository.html_url
-        const localChangelogPath = core.getInput('local_changelog_path') ?? null
+        const localChangelogPath = core.getInput('local_changelog_file_path') ?? null
 
         core.info(`Starting updating CHANGELOG.md for ${repoUrl}`)
 
