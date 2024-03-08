@@ -2,9 +2,13 @@ name: 'github-add-changelog-action'
 description: 'Extract changelog entries and add to CHANGELOG.md'
 author: 'Tjitse-E'
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
 inputs:
+  local_changelog_file_path:
+    description: >
+      The path to the local changelog file, we'll use this path instead of the remote file if it's set.
+    required: false
   token:
     description: Your Github token
     required: true
@@ -20,9 +24,15 @@ inputs:
       In the format `noreply@github.com`.
     default: noreply@github.com
     required: false
-  body:
-    description: The body of the PR
-    required: false
+  owner:
+    description: The owner of the repository
+    required: true
+  repo:
+    description: The repository name
+    required: true
+  pr_number:
+    description: The number of the pull request
+    required: true
   commit_message:
     description: The commit message
     default: 'Add changelog entry'

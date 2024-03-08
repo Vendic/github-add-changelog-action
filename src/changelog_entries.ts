@@ -103,8 +103,7 @@ export function extractChangelogSection(body: string) : string {
         throw new Error('Changelog missing in pull request body!')
     }
 
-    core.debug(`Matching section:`)
-    core.debug(changelogSection)
+    core.debug(`Matching section: ${changelogSection}`);
 
     return changelogSection
 }
