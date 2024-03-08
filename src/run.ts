@@ -1,5 +1,4 @@
 import * as core from '@actions/core'
-import * as github from '@actions/github'
 import {simpleGit, SimpleGit, SimpleGitOptions} from "simple-git";
 import path from "path";
 import {existsSync, mkdirSync, readFileSync, rmSync, writeFileSync, copyFileSync} from "fs";
@@ -7,6 +6,7 @@ import {Changelog, parser, Release} from "keep-a-changelog";
 import {randomBytes} from "crypto";
 import {clone, push, isChangelogChanged} from './git'
 import {ChangelogEntry, extractEntriesFromMarkdown, extractChangelogSection} from "./changelog_entries";
+import {getPullRequestById} from "./github_api";
 
 export default async function run(): Promise<void> {
     try {
@@ -15,20 +15,19 @@ export default async function run(): Promise<void> {
         const commitMessage = core.getInput('commit_message') ?? 'Update CHANGELOG.md'
         const committerUsername = core.getInput('committer_username');
         const committerEmail = core.getInput('committer_email');
-        const repoUrl = github.context.payload.repository.html_url
+        const owner = core.getInput('owner');
+        const repo = core.getInput('repo');
+        const prNumber = core.getInput('pr_number');
         const localChangelogPath = core.getInput('local_changelog_file_path') ?? null
 
-        core.info(`Starting updating CHANGELOG.md for ${repoUrl}`)
+        core.info(`Starting updating CHANGELOG.md for ${owner}/${repo}. PR: ${prNumber}`)
 
         if (token === '' || typeof token === 'undefined') {
             throw new Error('Input token is missing or empty.')
         }
 
-        let body = core.getInput('body')
-        if (body.length === 0) {
-            const pull_request = github.context.payload.pull_request ?? github.context.payload.event.pull_request
-            body = pull_request.body
-        }
+        const pullRequest = await getPullRequestById(token, owner, repo, parseInt(prNumber))
+        let body = pullRequest.body
 
         // Remove for double quotes at the start or end of body
         body = body.replace(/(^"|"$)/g, '');
@@ -61,7 +60,7 @@ export default async function run(): Promise<void> {
         const git: SimpleGit = simpleGit(options);
 
         // Clone repo and check changelog file
-        await clone(token, repoUrl, dir, git);
+        await clone(token, owner, repo, dir, git);
         const changelogPath = `${dir}/CHANGELOG.md`
 
         // Replace cloned changelog with the local one

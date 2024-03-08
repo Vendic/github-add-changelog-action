@@ -3,9 +3,9 @@ import * as core from "@actions/core";
 
 const REMOTE = 'auth';
 
-export async function clone(token: string, remote: string, dir: string, git: SimpleGit) {
-    core.info(`Cloning ${remote}`);
-    const remoteWithToken = await getAuthanticatedUrl(token, remote);
+export async function clone(token: string, owner: string, repo:string, dir: string, git: SimpleGit) {
+    core.info(`Cloning ${owner}/${repo} to ${dir}`);
+    const remoteWithToken = await getAuthanticatedUrl(token, owner, repo);
     await git.clone(remoteWithToken, dir, {'--depth': 1});
     await git.addRemote(REMOTE, remoteWithToken);
 }
@@ -17,9 +17,8 @@ export async function clone(token: string, remote: string, dir: string, git: Sim
  * @param  {String} url repo URL
  * @returns  {String}
  */
-async function getAuthanticatedUrl(token: string, url: string): Promise<string> {
-    const arr = url.split('//');
-    return `https://oauth2:${token}@${arr[arr.length - 1]}.git`;
+async function getAuthanticatedUrl(token: string, owner: string, repo: string): Promise<string> {
+    return `https://oauth2:${token}@github.com/${owner}/${repo}.git`;
 };
 
 export async function isChangelogChanged(git: SimpleGit): Promise<boolean> {
