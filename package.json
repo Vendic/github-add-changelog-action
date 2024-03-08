@@ -3,7 +3,6 @@
   "description": "Extract changelog entries and add to CHANGELOG.md",
   "main": "src/main.ts",
   "scripts": {
-    "build": "tsc",
     "test": "tsc --noEmit && jest",
     "ts": "tsx ./src/main.ts"
   },
