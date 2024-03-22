@@ -37621,6 +37621,10 @@ async function run() {
         }
         const pullRequest = await (0, github_api_1.getPullRequestById)(token, owner, repo, parseInt(prNumber));
         let body = pullRequest.body;
+        if (body === null) {
+            core.info('Pull request body is empty');
+            return;
+        }
         // Remove for double quotes at the start or end of body
         body = body.replace(/(^"|"$)/g, '');
         core.info(`Searching through pull request body for changelog section:`);

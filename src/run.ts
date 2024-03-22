@@ -28,6 +28,10 @@ export default async function run(): Promise<void> {
 
         const pullRequest = await getPullRequestById(token, owner, repo, parseInt(prNumber))
         let body = pullRequest.body
+        if (body === null) {
+            core.info('Pull request body is empty')
+            return
+        }
 
         // Remove for double quotes at the start or end of body
         body = body.replace(/(^"|"$)/g, '');
