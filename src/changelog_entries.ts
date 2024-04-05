@@ -23,7 +23,9 @@ export function extractEntriesFromMarkdown(markdown : string) : ChangelogEntry[]
     core.info('Extracting entries from markdown')
     core.debug('Searching through:')
     core.debug(markdown)
-    const themesContent = markdown.match(/###[^#]+/mg);
+
+    const patternStr = new RegExp("###(.*(?:(?:\\n|\\r\\n).+)*(?:\\n|\\r\\n)?)", "mg")
+    const themesContent = markdown.match(patternStr);
 
     if (!Array.isArray(themesContent) || Array.isArray(themesContent) && themesContent.length === 0) {
         return []
