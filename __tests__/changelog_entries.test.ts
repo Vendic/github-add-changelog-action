@@ -97,6 +97,21 @@ test('Extract multiple changelog entries from markdown with regular line breaks'
     expect(extractEntriesFromMarkdown(txt)).toEqual(expectedOutput)
 })
 
+test('Changelog Entry with numbered change is extracted properly', async () => {
+    const txt = `## Changelog
+### Changed
+- [#1234](/hello-world) Test changelog modification`
+
+    const expectedOutput : ChangelogEntry[] = [
+        {
+            text: '[#1234](/hello-world) Test changelog modification',
+            type: 'changed'
+        }
+    ]
+
+    expect(extractEntriesFromMarkdown(txt)).toEqual(expectedOutput)
+})
+
 test('Extract multiple changelog entries from markdown with \r\n line breaks', async () => {
     const txt = '## Description\r\n<!-- Please include a summary of the changes and the related issue. Please also include relevant context. -->\r\n\r\n## How Has This Been Tested?\r\n<!-- Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration -->\r\n\r\n## Checklist:\r\n- [ ] My code is up to date with the development branch, i\'ve pulled in the latest changes\r\n- [ ] I\'ve added the build label to my PR\r\n\r\n## Changelog\r\n### Changed\r\n- [Hello](World) Hello world\r\n- [Hello](World) Hello world 2\r\n- [Hello](World) Hello world 3\r\nSomething that\'s not the correct format\r\n\r\n## Deprecated (incorrect)\r\n- [Hello](World) Incorrect deprecated change\r\n\r\n### Fixed\r\n- [A fix](www.vendic.nl) Fixed\r\n- A great fix!\r\n'
     const expectedOutput : ChangelogEntry[] = [
@@ -141,3 +156,5 @@ test('Extract CHANGELOG section from pull request body', async () => {
 
     expect(extractChangelogSection(fileContents)).toEqual(expectedResult)
 })
+
+
