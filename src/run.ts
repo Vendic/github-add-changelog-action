@@ -40,6 +40,10 @@ export default async function run(): Promise<void> {
         core.info(body)
 
         const changelogSection = extractChangelogSection(body)
+        if (changelogSection === null) {
+            core.info('No changelog section found, skipping update')
+            return
+        }
         core.info(`Found changelog section in pull request body`)
         core.debug(changelogSection)
 

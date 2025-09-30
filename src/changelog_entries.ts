@@ -86,7 +86,7 @@ export function extractEntriesFromMarkdown(markdown : string) : ChangelogEntry[]
  *
  * @param body
  */
-export function extractChangelogSection(body: string) : string {
+export function extractChangelogSection(body: string) : string | null {
     core.debug('PR body:')
     core.debug(JSON.stringify(body))
 
@@ -97,12 +97,14 @@ export function extractChangelogSection(body: string) : string {
     // @ts-ignore
     const matches = body.match(/#{2,3}\s[Cc]hangelog[\S\s]+/g);
     if (!Array.isArray(matches) || matches.length !== 1) {
-        core.info('Cannot extract CHANGELOG from body')
+        core.warning('Cannot extract CHANGELOG from body')
+        return null
     }
     const changelogSection = matches[0]
 
     if (typeof changelogSection !== 'string') {
-        throw new Error('Changelog missing in pull request body!')
+        core.warning('Cannot extract CHANGELOG from body')
+        return null
     }
 
     core.debug(`Matching section: ${changelogSection}`);
