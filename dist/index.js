@@ -37378,7 +37378,8 @@ function extractEntriesFromMarkdown(markdown) {
     core.info('Extracting entries from markdown');
     core.debug('Searching through:');
     core.debug(markdown);
-    const themesContent = markdown.match(/###[^#]+/mg);
+    const patternStr = new RegExp("###(.*(?:(?:\\n|\\r\\n).+)*(?:\\n|\\r\\n)?)", "mg");
+    const themesContent = markdown.match(patternStr);
     if (!Array.isArray(themesContent) || Array.isArray(themesContent) && themesContent.length === 0) {
         return [];
     }
@@ -37440,11 +37441,13 @@ function extractChangelogSection(body) {
     // @ts-ignore
     const matches = body.match(/#{2,3}\s[Cc]hangelog[\S\s]+/g);
     if (!Array.isArray(matches) || matches.length !== 1) {
-        core.info('Cannot extract CHANGELOG from body');
+        core.warning('Cannot extract CHANGELOG from body');
+        return null;
     }
     const changelogSection = matches[0];
     if (typeof changelogSection !== 'string') {
-        throw new Error('Changelog missing in pull request body!');
+        core.warning('Cannot extract CHANGELOG from body');
+        return null;
     }
     core.debug(`Matching section: ${changelogSection}`);
     return changelogSection;
@@ -37630,6 +37633,10 @@ async function run() {
         core.info(`Searching through pull request body for changelog section:`);
         core.info(body);
         const changelogSection = (0, changelog_entries_1.extractChangelogSection)(body);
+        if (changelogSection === null) {
+            core.info('No changelog section found, skipping update');
+            return;
+        }
         core.info(`Found changelog section in pull request body`);
         core.debug(changelogSection);
         // Extract changelog sections
