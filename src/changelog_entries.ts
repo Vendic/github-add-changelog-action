@@ -60,11 +60,11 @@ export function extractEntriesFromMarkdown(markdown : string) : ChangelogEntry[]
             .split(/(\r\n|\n)/)
             .filter((line) => {
                 // See https://regex101.com/r/4XYvpR/1
-                return /^\s?-\s.*$/.test(line)
+                return /^\s?[-*]\s.*$/.test(line)
             })
             .forEach((filteredLine)  => {
                 changeLogEntries.push({
-                    text: filteredLine.trim().replace(/(^-\s|\\r\\n)/g, ''),
+                    text: filteredLine.trim().replace(/(^[-*]\s|\\r\\n)/g, ''),
                     type: section.toLowerCase()
                 })
             })
