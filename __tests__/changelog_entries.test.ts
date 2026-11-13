@@ -158,3 +158,130 @@ test('Extract CHANGELOG section from pull request body', async () => {
 })
 
 
+
+test('Extract changelog entry with a blank line after the theme heading', async () => {
+    const txt = `## Changelog
+
+### Changed
+
+- Update @playwright/test to 1.65.0 for the end-to-end tests
+`
+
+    const expectedOutput : ChangelogEntry[] = [
+        {
+            text: 'Update @playwright/test to 1.65.0 for the end-to-end tests',
+            type: 'changed'
+        }
+    ]
+
+    expect(extractEntriesFromMarkdown(txt)).toEqual(expectedOutput)
+})
+
+test('Extract changelog entries separated by blank and whitespace-only lines', async () => {
+    const txt = `## Changelog
+### Fixed
+- [ABC-123](https://getfrost.app/task/ABC-123) First fix
+
+- [ABC-124](https://getfrost.app/task/ABC-124) Second fix
+   \t
+* Third fix`
+
+    const expectedOutput : ChangelogEntry[] = [
+        {
+            text: '[ABC-123](https://getfrost.app/task/ABC-123) First fix',
+            type: 'fixed'
+        },
+        {
+            text: '[ABC-124](https://getfrost.app/task/ABC-124) Second fix',
+            type: 'fixed'
+        },
+        {
+            text: 'Third fix',
+            type: 'fixed'
+        }
+    ]
+
+    expect(extractEntriesFromMarkdown(txt)).toEqual(expectedOutput)
+})
+
+test('Extract changelog entries from CRLF body with blank lines inside themes', async () => {
+    const txt = '## Description\r\nSome description\r\n\r\n## Changelog\r\n\r\n### Added\r\n\r\n- [ABC-1](https://getfrost.app/task/ABC-1) New feature\r\n\r\n- Another feature\r\n\r\n### Removed\r\n\r\n- Old feature\r\n'
+
+    const expectedOutput : ChangelogEntry[] = [
+        {
+            text: '[ABC-1](https://getfrost.app/task/ABC-1) New feature',
+            type: 'added'
+        },
+        {
+            text: 'Another feature',
+            type: 'added'
+        },
+        {
+            text: 'Old feature',
+            type: 'removed'
+        }
+    ]
+
+    expect(extractEntriesFromMarkdown(txt)).toEqual(expectedOutput)
+})
+
+test('Extract changelog entries from escaped CRLF (literal \\r\\n) body with blank lines inside themes', async () => {
+    const txt = `## Changelog\\r\\n\\r\\n### Changed\\r\\n\\r\\n- Change 123\\r\\n`
+
+    const expectedOutput : ChangelogEntry[] = [
+        {
+            text: 'Change 123',
+            type: 'changed'
+        }
+    ]
+
+    expect(extractEntriesFromMarkdown(txt)).toEqual(expectedOutput)
+})
+
+test('Extract multiple themes separated by blank lines and stop at the next heading', async () => {
+    const txt = `## Changelog
+
+### Changed
+
+- [ABC-123](https://getfrost.app/task/ABC-123) Some change
+
+
+### Fixed
+
+- [ABC-124](https://getfrost.app/task/ABC-124) Some fix
+
+## Screenshots
+
+- Not a changelog entry
+
+### Notes
+
+- Not a changelog entry either`
+
+    const expectedOutput : ChangelogEntry[] = [
+        {
+            text: '[ABC-123](https://getfrost.app/task/ABC-123) Some change',
+            type: 'changed'
+        },
+        {
+            text: '[ABC-124](https://getfrost.app/task/ABC-124) Some fix',
+            type: 'fixed'
+        }
+    ]
+
+    expect(extractEntriesFromMarkdown(txt)).toEqual(expectedOutput)
+})
+
+test('Extract changelog entry from a full pull request body with blank lines inside the theme', async () => {
+    const body = '## Description\r\n\r\nUpdate Playwright.\r\n\r\n## Changelog\r\n\r\n### Changed\r\n\r\n- Update @playwright/test to 1.65.0 for the end-to-end tests\r\n'
+    const changelogSection = extractChangelogSection(body)
+
+    const expectedOutput : ChangelogEntry[] = [
+        {
+            text: 'Update @playwright/test to 1.65.0 for the end-to-end tests',
+            type: 'changed'
+        }
+    ]
+
+    expect(extractEntriesFromMarkdown(changelogSection)).toEqual(expectedOutput)
+})

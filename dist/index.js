@@ -37372,49 +37372,62 @@ var Themes;
 /**
  * Extract changelog entries from markdown text
  *
+ * The markdown is scanned line by line. A theme section starts at a `### <Theme>` heading
+ * and ends at the next markdown heading (`#`, `##`, `###`, ...) or at the end of the text.
+ * Blank and whitespace-only lines inside a theme section are ignored, so these formats
+ * are all accepted, just like the keep-a-changelog parser used by the PR validation:
+ *
+ * ### Changed
+ *
+ * - Some change
+ *
+ * - Another change
+ *
  * @param markdown
  */
 function extractEntriesFromMarkdown(markdown) {
     core.info('Extracting entries from markdown');
     core.debug('Searching through:');
     core.debug(markdown);
-    const patternStr = new RegExp("###(.*(?:(?:\\n|\\r\\n).+)*(?:\\n|\\r\\n)?)", "mg");
-    const themesContent = markdown.match(patternStr);
-    if (!Array.isArray(themesContent) || Array.isArray(themesContent) && themesContent.length === 0) {
-        return [];
-    }
-    core.info(`Found ${themesContent.length} themes.`);
-    themesContent.forEach((themesContent) => {
-        core.debug('Theme content is:');
-        core.debug(themesContent);
-    });
-    let changeLogEntries = [];
     const themes = Object.values(Themes);
-    themes.forEach((section) => {
-        let regex = new RegExp('##\\s{1}' + section);
-        let themeContent = themesContent.find((themeContent) => {
-            return regex.test(themeContent);
-        });
-        if (typeof themeContent !== "string") {
+    const entriesPerTheme = new Map();
+    const lines = markdown
+        // Bodies fetched via the Github API can contain escaped "\r\n" sequences
+        .replace(/\\r\\n/g, '\n')
+        .split(/\r\n|\n|\r/);
+    let currentTheme = null;
+    lines.forEach((line) => {
+        const heading = line.match(/^\s{0,3}(#{1,6})\s+(.*?)\s*$/);
+        if (heading) {
+            currentTheme = null;
+            if (heading[1] !== '###') {
+                return;
+            }
+            const theme = themes.find((theme) => new RegExp('^' + theme + '\\b', 'i').test(heading[2]));
+            if (typeof theme === 'string') {
+                currentTheme = theme;
+                if (!entriesPerTheme.has(theme)) {
+                    core.info(`Section: ${theme} found. `);
+                    entriesPerTheme.set(theme, []);
+                }
+            }
             return;
         }
-        core.info(`Section: ${section} found. `);
-        core.debug(`Value: ${themeContent}`);
-        // Split the content based on newlines, then check if we are dealing with a list.
-        themeContent
-            // Replace all "\r\n" with \n
-            .replace(/\\r\\n/g, '\n')
-            // After several tests I found out that this regex is the most reliable
-            // It splits on both \r\n and \n. The Github PR body that I tested contained \r\n line breaks
-            .split(/(\r\n|\n)/)
-            .filter((line) => {
-            // See https://regex101.com/r/4XYvpR/1
-            return /^\s?[-*]\s.*$/.test(line);
-        })
-            .forEach((filteredLine) => {
+        // Blank lines and other text (e.g. HTML comments) don't end a theme section
+        // See https://regex101.com/r/4XYvpR/1
+        if (currentTheme === null || !/^\s?[-*]\s.*$/.test(line)) {
+            return;
+        }
+        entriesPerTheme.get(currentTheme).push(line.trim().replace(/^[-*]\s/, ''));
+    });
+    core.info(`Found ${entriesPerTheme.size} themes.`);
+    const changeLogEntries = [];
+    themes.forEach((theme) => {
+        var _a;
+        ((_a = entriesPerTheme.get(theme)) !== null && _a !== void 0 ? _a : []).forEach((text) => {
             changeLogEntries.push({
-                text: filteredLine.trim().replace(/(^[-*]\s|\\r\\n)/g, ''),
-                type: section.toLowerCase()
+                text: text,
+                type: theme.toLowerCase()
             });
         });
     });
